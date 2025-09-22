@@ -1,0 +1,10 @@
+3. Write up on IF IT WERE YOU, HOW WILL YOU DRAW A LINE FROM TOP-LEFT CORNER TO THE BOTTOM-RIGHT CORNER OF THE SCREEN (or (0, 0) to (200, 30) as in the lecture). You do not need to go on a detail, just give me a general idea.
+
+Ans: From mathematics, there have linear equations "y = mx + c" where m is slope and C is constant.
+
+I will write program loop x from 0 to 200
+First, calculate m and c where "m = (y2-y1)/(x2-x1)" and "c = (y1x2 - y2x1)/(x2-x1)
+
+Second, set m = (30-1)/(200-1) since screen size is 0 to width or height minus 1
+Third, set c -> y1, x1 = 1, x2 = w-1 and y2 = h-1
+Finally loop x from 0 to 199;

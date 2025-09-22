@@ -1,0 +1,10 @@
+{
+  "cmake.useCMakePresets": "always",
+  "cmake.generateBeforeBuild": true,
+  "cmake.configureOnOpen": true,
+  "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+  "files.associations": {
+    "vector": "cpp"
+  },
+  "C_Cpp.errorSquiggles": "disabled"
+}

@@ -1,0 +1,24 @@
+Ex.1q5.) From my observation, I see that x2 more than x1 since x loop ascending in Ex.1q3.
+So, I set the condition if x1 > x2 then swap variable from x1 to x2 and y1 to y2
+
+To implemented to draw lines beautifully is to increase size of the plot to 5
+
+Ex.2q5.) I found out that we need to make swap() function but the problem is Java variable cannot
+pass by reference, e.g., C language allow pass by reference variable by make it pointer.
+So, I implemented to be array at first and implemented using swap with array
+
+Next, we need to refactor DDALine to be readable by making swap() function, 
+findDifferential function (dx, dy), calculateSlope function (m) and drawDDA
+to make it readable.
+
+From refactor, swapValueArr(), findDifferential(), calculateSlope() are reusable, so I will use these functions/methods in
+another drawing algorithm line.
+
+Ex.3q5.) The bresenhamLine method should be drawn as the pseudo code above because of the following:
+- Pseudo code of first is the original
+- Pseudo code of second is edited from first.
+- The difference between both are swap dy and dx
+- The keypoint that I see is sx and sy. Normally we increase by one of each loop, but
+in second pseudocode check that if each axis is less/more than other one, e.g., x1 < x2 ? or y1 < y2?
+From those condition if x1|y1 < x2|y2 is true then each loop increase by 1, otherwise decrease by 1 from each axis
+- From the keypoint, the program is more flexible and support with all coordinates.

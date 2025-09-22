@@ -1,0 +1,11 @@
+**/*.class
+**/**/*.class
+**/dist
+**/**/dist
+**/jcc.exe
+**/**/jcc.exe
+midtermPreparation
+finalPreparation
+game_project_group
+BoringStuff
+PairWork
