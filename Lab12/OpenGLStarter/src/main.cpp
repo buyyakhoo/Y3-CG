@@ -283,6 +283,7 @@ int main()
             // Light
             glUniform3fv(shaderList[0].GetUniformLocation("lightColour"), 1, (GLfloat *)&lightColour);
             glUniform3fv(shaderList[0].GetUniformLocation("lightPos"), 1, (GLfloat *)&lightPos);
+            glUniform3fv(shaderList[0].GetUniformLocation("viewPos"), 1, (GLfloat *)&cameraPos);   
 
             GLuint uniformTexture1 = shaderList[0].GetUniformLocation("texture1");
             glUniform1i(uniformTexture1, 0);
