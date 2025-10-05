@@ -267,6 +267,10 @@ int main()
             glm::vec3(-1.3f, 1.0f, -1.5f)
         };
 
+        lightPos.x = 1.0f + sin(glfwGetTime()) * 2.0f;
+        lightPos.y = sin(glfwGetTime() / 2.0f) * 1.0f;
+        lightPos.z = 0.0f;
+
         // Object (cont): render 10 objects
         for (int i=0; i<10; i++) {
             glm::mat4 model(1.0f);

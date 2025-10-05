@@ -13,13 +13,13 @@ uniform vec3 viewPos;
 uniform sampler2D texture1;
 
 vec3 ambientLight() {
-    float ambientStrength = 0.5f;
+    float ambientStrength = 0.1f;
     vec3 ambient = ambientStrength * lightColour;
     return ambient;
 }
 
 vec3 diffuseLight() {
-    float diffuseStrength = 0.5f;
+    float diffuseStrength = 0.8f;
     
     vec3 lightDir = normalize(lightPos - FragPos);
     vec3 norm = normalize(Normal);
