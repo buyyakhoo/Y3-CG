@@ -29,7 +29,11 @@ const GLint WIDTH = 800, HEIGHT = 600;
 
 Window mainWindow;
 std::vector<Mesh*> meshList;
-std::vector<Shader> shaderList;
+std::vector<Shader*> shaderList;
+
+Mesh* light;
+static const char* lightVShader = "Shaders/lightShader.vert";
+static const char* lightFShader = "Shaders/lightShader.frag";
 
 float yaw = -90.0f, pitch = 0.0f;
 
@@ -39,7 +43,7 @@ static const char* vShader = "Shaders/shader.vert";
 //Fragment Shader
 static const char* fShader = "Shaders/shader.frag";
 
-glm::vec3 lightColour = glm::vec3(1.0f, 1.0f, 0.0f);
+glm::vec3 lightColour = glm::vec3(1.0f, 1.0f, 1.0f);
 glm::vec3 lightPos = glm::vec3(-10.0f, 0.0f, 10.0f);
 
 void CreateTriangle()
@@ -88,13 +92,25 @@ void CreateOBJ()
         std::cout << "OBJ failed to load" << std::endl;
     }
 
+    light = new Mesh();
+    loaded = light->CreateMeshFromOBJ("Models/cube.obj");
+    
+    if (!loaded)
+    {
+        std::cout << "OBJ failed to load" << std::endl;
+    }
+
 }
 
 void CreateShaders()
 {
     Shader* shader1 = new Shader();
     shader1->CreateFromFiles(vShader, fShader);
-    shaderList.push_back(*shader1);
+    shaderList.push_back(shader1);
+
+    Shader* shader2 = new Shader();
+    shader2->CreateFromFiles(lightVShader, lightFShader);
+    shaderList.push_back(shader2);
 }
 
 void checkMouse()
@@ -232,10 +248,10 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         //draw here
-        shaderList[0].UseShader();
-        uniformModel = shaderList[0].GetUniformLocation("model");
-        uniformView = shaderList[0].GetUniformLocation("view");
-        uniformProjection = shaderList[0].GetUniformLocation("projection");
+        shaderList[0]->UseShader();
+        uniformModel = shaderList[0]->GetUniformLocation("model");
+        uniformView = shaderList[0]->GetUniformLocation("view");
+        uniformProjection = shaderList[0]->GetUniformLocation("projection");
 
         glm::mat4 view(1.0f);
 
@@ -285,11 +301,11 @@ int main()
             glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
 
             // Light
-            glUniform3fv(shaderList[0].GetUniformLocation("lightColour"), 1, (GLfloat *)&lightColour);
-            glUniform3fv(shaderList[0].GetUniformLocation("lightPos"), 1, (GLfloat *)&lightPos);
-            glUniform3fv(shaderList[0].GetUniformLocation("viewPos"), 1, (GLfloat *)&cameraPos);   
+            glUniform3fv(shaderList[0]->GetUniformLocation("lightColour"), 1, glm::value_ptr(lightColour));
+            glUniform3fv(shaderList[0]->GetUniformLocation("lightPos"), 1, glm::value_ptr(lightPos));
+            glUniform3fv(shaderList[0]->GetUniformLocation("viewPos"), 1, glm::value_ptr(cameraPos));   
 
-            GLuint uniformTexture1 = shaderList[0].GetUniformLocation("texture1");
+            GLuint uniformTexture1 = shaderList[0]->GetUniformLocation("texture1");
             glUniform1i(uniformTexture1, 0);
 
             glActiveTexture(GL_TEXTURE0);
@@ -298,11 +314,23 @@ int main()
             meshList[i] -> RenderMesh();
         }
 
-        // glm::mat4 model2(1.0f);
-        // model2 = glm::translate(model2, glm::vec3(-0.6f, -0.3f, -2.0f));
-        // model2 = glm::scale(model2, glm::vec3(0.6f, 0.6f, 0.6f));
-        // glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model2));
-        // meshList[1]->RenderMesh();
+        // light mesh render
+        shaderList[1]->UseShader();
+        uniformModel = shaderList[1]->GetUniformLocation("model");
+        uniformView = shaderList[1]->GetUniformLocation("view");
+        uniformProjection = shaderList[1]->GetUniformLocation("projection");
+
+        glm::mat4 model2(1.0f);
+
+        model2 = glm::translate(model2, lightPos);
+        model2 = glm::scale(model2, glm::vec3(0.2f, 0.2f, 0.2f));
+
+        glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model2));
+        glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(view));
+        glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
+
+        glUniform3fv(shaderList[1]->GetUniformLocation("lightColour"), 1, glm::value_ptr(lightColour));
+        light -> RenderMesh();
 
         glUseProgram(0);
         //end draw

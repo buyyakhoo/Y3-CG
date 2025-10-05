@@ -13,13 +13,13 @@ uniform vec3 viewPos;
 uniform sampler2D texture1;
 
 vec3 ambientLight() {
-    float ambientStrength = 0.1f;
+    float ambientStrength = 0.2f;
     vec3 ambient = ambientStrength * lightColour;
     return ambient;
 }
 
 vec3 diffuseLight() {
-    float diffuseStrength = 0.8f;
+    float diffuseStrength = 0.5f;
     
     vec3 lightDir = normalize(lightPos - FragPos);
     vec3 norm = normalize(Normal);
@@ -30,15 +30,21 @@ vec3 diffuseLight() {
 }
 
 vec3 specularLight() {
-    float specularStrength = 0.5f;
-    float shininess = 64.0f;
+    // specular light = view direction dot reflect direction
+    float specularStrength = 0.5f; // ความแรงที่แสงสะท้อน
+    float shininess = 64.0f; // ความแวววาว เป็นตัวกำหนดว่าวัสุที่กำหนดมีการสะท้อนแสงเท่าไหร่
 
     vec3 lightDir = normalize(lightPos - FragPos);
     vec3 norm = normalize(Normal);
     vec3 reflectDir = reflect(-lightDir, norm);
     vec3 viewDir = normalize(viewPos - FragPos);
 
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
+    // Phong specular
+    // float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
+
+    // Blinn-Phong specular
+    vec3 halfDir = normalize((lightDir + viewDir) / 2.0);
+    float spec = pow(max(dot(norm, halfDir), 0.0), shininess);
 
     vec3 specular = lightColour * spec * specularStrength;
 
