@@ -93,7 +93,7 @@ void CreateTriangle()
 void CreateOBJ()
 {
     Mesh *obj1 = new Mesh();
-    bool loaded = obj1->CreateMeshFromOBJ("Models/cat_new.obj");
+    bool loaded = obj1->CreateMeshFromOBJ("Models/cat.obj");
     
     if (loaded)
     {
@@ -177,7 +177,7 @@ void checkMouse()
 void RenderScene(glm::mat4 view, glm::mat4 projection)
 {
     glm::vec3 pyramidPositions[] = {
-        glm::vec3(1.0f, -2.0f, -2.5f),
+        glm::vec3(1.0f, -2.0f, 0.5f),
         glm::vec3(2.0f, 5.0f, -15.0f),
         glm::vec3(-1.5f, -2.2f, -2.5f),
         glm::vec3(-3.8f, -2.0f, -12.3f),
@@ -369,7 +369,7 @@ int main()
 
         lightPos.x = 1.0f + sin(glfwGetTime()) * 4.0f;
         lightPos.y = sin(glfwGetTime() / 2.0f) * 3.0f;
-        lightPos.z = 3.0f;
+        lightPos.z = 6.0f;
 
         // first pass : render depth of scene to texture (from light's perspective)
         glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
