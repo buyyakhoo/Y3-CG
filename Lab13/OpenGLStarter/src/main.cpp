@@ -267,7 +267,7 @@ int main()
     GLuint depthMapFBO; // Frame buffer Object
     glGenFramebuffers(1, &depthMapFBO);
 
-    const GLuint SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
+    const GLuint SHADOW_WIDTH = 4096, SHADOW_HEIGHT = 4096;
 
     GLuint depthMap;
     glGenTextures(1, &depthMap);
@@ -377,7 +377,7 @@ int main()
 
         glm::mat4 lightProjection, lightView;
         lightProjection = glm::ortho(-20.0f, 20.0f, -20.0f, 20.0f, 0.1f, 20.0f);
-        // lightProjection = glm::perspective(glm::radians(90.0f), (GLfloat)SHADOW_WIDTH / (GLfloat)SHADOW_HEIGHT, 0.1f, 100.0f);
+        // lightProjection = glm::perspective(glm::radians(110.0f), (GLfloat)SHADOW_WIDTH / (GLfloat)SHADOW_HEIGHT, 0.1f, 100.0f);
         lightView = glm::lookAt(lightPos, glm::vec3(0.0f, 0.0f, -2.5f), up);
 
         depthShader->UseShader();
@@ -390,7 +390,9 @@ int main()
         uniformView = shaderList[0]->GetUniformLocation("view");
         uniformProjection = shaderList[0]->GetUniformLocation("projection");
 
+        glCullFace(GL_FRONT);
         RenderScene(lightView, lightProjection);
+        glCullFace(GL_BACK);
 
         // second pass : render scene as normal using the generated depth map
         glViewport(0, 0, mainWindow.getBufferWidth(), mainWindow.getBufferHeight());
@@ -447,7 +449,7 @@ int main()
         glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
 
         // bg color
-        glm::vec3 bgcolour = glm::vec3(1.0f, 0.5f, 0.5f); 
+        glm::vec3 bgcolour = glm::vec3(1.0f, 1.0f, 1.0f); 
         glUniform3fv(shaderList[2]->GetUniformLocation("bgColour"), 1, (GLfloat *)&bgcolour);
         
         glUniformMatrix4fv(shaderList[2]->GetUniformLocation("lightProjection"), 1, GL_FALSE, glm::value_ptr(lightProjection));

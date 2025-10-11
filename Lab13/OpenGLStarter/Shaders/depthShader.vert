@@ -13,7 +13,7 @@ out vec4 fragPosLightSpace;
 
 void main()
 {
-    vec4 fragPos = vec3(model * vec4(pos, 1.0));
+    vec3 fragPos = vec3(model * vec4(pos, 1.0));
     fragPosLightSpace = lightProjection * lightView * vec4(fragPos, 1.0);
     gl_Position = projection * view * model * vec4(pos.x, pos.y, pos.z, 1.0);
 }
