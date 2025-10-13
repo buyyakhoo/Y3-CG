@@ -59,7 +59,7 @@ GLuint uniformView = 0;
 GLuint uniformProjection = 0;
 
 // texture
-unsigned int texture1, texture2;
+unsigned int texture1, texture2, bgTexture;  
 
 void CreateTriangle()
 {
@@ -101,7 +101,6 @@ void CreateOBJ()
         {
             meshList.push_back(obj1);
         }
-        // meshList.push_back(obj1);
     }
     else 
     {
@@ -248,10 +247,37 @@ int main()
         stbi_image_free(data1);
     }
 
+    // === BACKGROUND TEXTURE ===
+    glGenTextures(1, &bgTexture);
+    glBindTexture(GL_TEXTURE_2D, bgTexture);
 
-    // glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 10.0f);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    int bgWidth, bgHeight, bgChannels;
+    unsigned char *bgData = stbi_load("Textures/background.jpg", &bgWidth, &bgHeight, &bgChannels, 0);
+
+    if (!bgData) {
+        std::cout << "Failed to load background texture: background.jpg" << std::endl;
+    } else {
+        GLenum bgFormat = GL_RGB;
+        if (bgChannels == 1)
+            bgFormat = GL_RED;
+        else if (bgChannels == 3)
+            bgFormat = GL_RGB;
+        else if (bgChannels == 4)
+            bgFormat = GL_RGBA;
+        
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glTexImage2D(GL_TEXTURE_2D, 0, bgFormat, bgWidth, bgHeight, 0, bgFormat, GL_UNSIGNED_BYTE, bgData);
+        glGenerateMipmap(GL_TEXTURE_2D);
+        stbi_image_free(bgData);
+        std::cout << "Background texture loaded successfully!" << std::endl;
+    }
+
     glm::vec3 cameraPos = glm::vec3(1.0f, 0.5f, 2.0f);
-    // glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, -1.0f);
     glm::vec3 cameraTarget = glm::vec3(0.0f, -0.3f, -1.0f);
     glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f); 
 
@@ -261,11 +287,8 @@ int main()
 
     glm::mat4 projection = glm::perspective(45.0f, (GLfloat)mainWindow.getBufferWidth() / (GLfloat)mainWindow.getBufferHeight(), 0.1f, 100.0f);
 
-    // Orthographic
-    // glm::mat4 projection = glm::ortho(-4.0f, 4.0f, -3.0f, 3.0f, -0.1f, 100.0f);
-
     // shadow
-    GLuint depthMapFBO; // Frame buffer Object
+    GLuint depthMapFBO;
     glGenFramebuffers(1, &depthMapFBO);
 
     const GLuint SHADOW_WIDTH = 4096, SHADOW_HEIGHT = 4096;
@@ -294,7 +317,6 @@ int main()
         float currentTime = static_cast<float>(glfwGetTime());
         deltaTime = currentTime - lastTime;
         lastTime = currentTime;
-        //Get + Handle user input events
         glfwPollEvents();
         checkMouse();
 
@@ -327,58 +349,28 @@ int main()
         cameraRight = glm::normalize(glm::cross(cameraDirection, up));
         cameraUp = glm::normalize(glm::cross(cameraRight, cameraDirection));
 
-        //Clear window
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        //draw here
         shaderList[0]->UseShader();
         uniformModel = shaderList[0]->GetUniformLocation("model");
         uniformView = shaderList[0]->GetUniformLocation("view");
         uniformProjection = shaderList[0]->GetUniformLocation("projection");
 
         glm::mat4 view(1.0f);
-
-        // glm::mat4 cameraPosMat(1.0f);
-        // cameraPosMat[3][0] = -cameraPos.x;
-        // cameraPosMat[3][1] = -cameraPos.y;
-        // cameraPosMat[3][2] = -cameraPos.z;
-
-        // glm::mat4 cameraRotateMat(1.0f);
-        // cameraRotateMat[0] = glm::vec4(cameraRight.x, cameraUp.x, -cameraDirection.x, 0.0f);
-        // cameraRotateMat[1] = glm::vec4(cameraRight.y, cameraUp.y, -cameraDirection.y, 0.0f);
-        // cameraRotateMat[2] = glm::vec4(cameraRight.z, cameraUp.z, -cameraDirection.z, 0.0f);
-
-        // view = cameraRotateMat * cameraPosMat;
-
         view = glm::lookAt(cameraPos, cameraPos + cameraDirection, cameraUp);
-
-        // //Object
-        // glm::vec3 pyramidPositions[] = {
-        //     glm::vec3(0.0f, 0.0f, -2.5f),
-        //     glm::vec3(2.0f, 5.0f, -15.0f),
-        //     glm::vec3(-1.5f, -2.2f, -2.5f),
-        //     glm::vec3(-3.8f, -2.0f, -12.3f),
-        //     glm::vec3(2.4f, -0.4f, -3.5f),
-        //     glm::vec3(-1.7f, 3.0f, -7.5f),
-        //     glm::vec3(1.3f, -2.0f, -2.5f),
-        //     glm::vec3(1.5f, 2.0f, -2.5f),
-        //     glm::vec3(1.5f, 0.2f, -1.5f),
-        //     glm::vec3(-1.3f, 1.0f, -1.5f)
-        // };
 
         lightPos.x = 1.0f + sin(glfwGetTime()) * 4.0f;
         lightPos.y = sin(glfwGetTime() / 2.0f) * 3.0f;
         lightPos.z = 6.0f;
 
-        // first pass : render depth of scene to texture (from light's perspective)
+        // first pass : render depth of scene to texture
         glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
         glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
         glClear(GL_DEPTH_BUFFER_BIT);
 
         glm::mat4 lightProjection, lightView;
         lightProjection = glm::ortho(-20.0f, 20.0f, -20.0f, 20.0f, 0.1f, 20.0f);
-        // lightProjection = glm::perspective(glm::radians(110.0f), (GLfloat)SHADOW_WIDTH / (GLfloat)SHADOW_HEIGHT, 0.1f, 100.0f);
         lightView = glm::lookAt(lightPos, glm::vec3(0.0f, 0.0f, -2.5f), up);
 
         depthShader->UseShader();
@@ -395,7 +387,7 @@ int main()
         RenderScene(lightView, lightProjection);
         glCullFace(GL_BACK);
 
-        // second pass : render scene as normal using the generated depth map
+        // second pass : render scene as normal
         glViewport(0, 0, mainWindow.getBufferWidth(), mainWindow.getBufferHeight());
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -406,16 +398,7 @@ int main()
         // Light
         glUniform3fv(shaderList[0]->GetUniformLocation("lightColour"), 1, glm::value_ptr(lightColour));
         glUniform3fv(shaderList[0]->GetUniformLocation("lightPos"), 1, glm::value_ptr(lightPos));
-        glUniform3fv(shaderList[0]->GetUniformLocation("viewPos"), 1, glm::value_ptr(cameraPos));   
-
-        //     GLuint uniformTexture1 = shaderList[0]->GetUniformLocation("texture1");
-        //     glUniform1i(uniformTexture1, 0);
-
-        //     glActiveTexture(GL_TEXTURE0);
-        //     glBindTexture(GL_TEXTURE_2D, texture1);
-
-        //     meshList[i] -> RenderMesh();
-        // }
+        glUniform3fv(shaderList[0]->GetUniformLocation("viewPos"), 1, glm::value_ptr(cameraPos));
 
         // light mesh render
         shaderList[1]->UseShader();
@@ -433,7 +416,7 @@ int main()
         glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
 
         glUniform3fv(shaderList[1]->GetUniformLocation("lightColour"), 1, glm::value_ptr(lightColour));
-        light -> RenderMesh();
+        light->RenderMesh();
 
         //bg
         shaderList[2]->UseShader();
@@ -441,7 +424,7 @@ int main()
         uniformView = shaderList[2]->GetUniformLocation("view");
         uniformProjection = shaderList[2]->GetUniformLocation("projection");
 
-        glm::mat4 model (1.0f);
+        glm::mat4 model(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, -8.0f));
         model = glm::scale(model, glm::vec3(20.0f, 20.0f, 0.1f));
 
@@ -456,18 +439,21 @@ int main()
         glUniformMatrix4fv(shaderList[2]->GetUniformLocation("lightProjection"), 1, GL_FALSE, glm::value_ptr(lightProjection));
         glUniformMatrix4fv(shaderList[2]->GetUniformLocation("lightView"), 1, GL_FALSE, glm::value_ptr(lightView));
 
-
-        // // เพิ่ม 3 บรรทัดนี้
+        // Bind shadow map
         GLuint uniformShadowMap = shaderList[2]->GetUniformLocation("shadowMap");
         glUniform1i(uniformShadowMap, 1);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, depthMap);
 
+        // Bind background texture
+        GLuint uniformBgTexture = shaderList[2]->GetUniformLocation("bgTexture");
+        glUniform1i(uniformBgTexture, 0);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, bgTexture);
+
         bg->RenderMesh();
 
-
         glUseProgram(0);
-        //end draw
 
         mainWindow.swapBuffers();
     }

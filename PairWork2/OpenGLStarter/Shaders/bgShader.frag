@@ -3,9 +3,11 @@
 out vec4 colour;
 
 in vec4 fragPosLightSpace;
+in vec2 TexCoord;  // เพิ่ม texture coordinate
 
 uniform vec3 bgColour;
 uniform sampler2D shadowMap;
+uniform sampler2D bgTexture;  // เพิ่ม background texture
 
 float ShadowCalculation()
 {
@@ -20,7 +22,7 @@ float ShadowCalculation()
     // get depth of current fragment from light's perspective
     float currentDepth = projCoords.z;
 
-    // // check whether current frag pos is in shadow
+    // check whether current frag pos is in shadow
     float bias = 0.005;
     shadow = currentDepth - bias > closestDepth  ? 0.7 : 0.0;
 
@@ -34,8 +36,6 @@ float ShadowCalculation()
         }
     }
     shadow /= 9.0;
-
-    
     
     return shadow;
 }
@@ -43,8 +43,16 @@ float ShadowCalculation()
 void main() 
 {
     float shadow = ShadowCalculation();
-    if (shadow > 0) colour = vec4(0.0, 0.0f, 0.0f, 1.0f);
-    else colour = vec4(1.0, 0.5f, 0.5f, 1.0f);
-
-    // colour = vec4((1.0 - shadow) * bgColour, 1.0);
+    
+    // อ่าน texture สำหรับพื้นหลัง
+    vec4 texColor = texture(bgTexture, TexCoord);
+    
+    // ใช้ shadow กับ texture
+    colour = texColor * (1.0 - shadow * 0.5);  // ลดความเข้มของ shadow ลงนิดหน่อย
+    
+    // หรือถ้าต้องการให้เงาเป็นสีดำชัดเจน:
+    // if (shadow > 0) 
+    //     colour = vec4(texColor.rgb * 0.3, texColor.a);  // เงาทำให้มืดลง
+    // else 
+    //     colour = texColor;
 }
