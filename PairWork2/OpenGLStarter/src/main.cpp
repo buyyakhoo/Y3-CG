@@ -229,10 +229,10 @@ int main()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     int width1, height1, nrChannels1;
-    unsigned char *data1 = stbi_load("Textures/uvmap.png", &width1, &height1, &nrChannels1, 0);
+    unsigned char *data1 = stbi_load("Textures/cat_diffuse.jpg", &width1, &height1, &nrChannels1, 0);
 
     if (!data1) {
-        std::cout << "Failed to load texture1: uvmap.png" << std::endl;
+        std::cout << "Failed to load texture1: cat_diffuse.jpg" << std::endl;
     } else {
         GLenum format = GL_RGB;
         if (nrChannels1 == 1)
