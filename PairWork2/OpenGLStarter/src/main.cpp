@@ -93,15 +93,15 @@ void CreateTriangle()
 void CreateOBJ()
 {
     Mesh *obj1 = new Mesh();
-    bool loaded = obj1->CreateMeshFromOBJ("Models/cat.obj");
+    bool loaded = obj1->CreateMeshFromOBJ("Models/cat_minecraft_2.obj");
     
     if (loaded)
     {
-        // for (int i=0; i<10; i++)
-        // {
-        //     meshList.push_back(obj1);
-        // }
-        meshList.push_back(obj1);
+        for (int i=0; i<10; i++)
+        {
+            meshList.push_back(obj1);
+        }
+        // meshList.push_back(obj1);
     }
     else 
     {
@@ -190,7 +190,7 @@ void RenderScene(glm::mat4 view, glm::mat4 projection)
     };
 
     // Object
-    for (int i = 0; i < 1; i++)
+    for (int i = 0; i < 10; i++)
     {
         glm::mat4 model (1.0f);
         
@@ -229,10 +229,10 @@ int main()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     int width1, height1, nrChannels1;
-    unsigned char *data1 = stbi_load("Textures/cat_diffuse.jpg", &width1, &height1, &nrChannels1, 0);
+    unsigned char *data1 = stbi_load("Textures/cat_minecraft_2.png", &width1, &height1, &nrChannels1, 0);
 
     if (!data1) {
-        std::cout << "Failed to load texture1: cat_diffuse.jpg" << std::endl;
+        std::cout << "Failed to load texture1: cat_minecraft_2.png" << std::endl;
     } else {
         GLenum format = GL_RGB;
         if (nrChannels1 == 1)
